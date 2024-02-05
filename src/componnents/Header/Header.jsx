@@ -6,8 +6,8 @@ import { ReactComponent as Search } from '../../img/search_icon.svg'
 import { ReactComponent as User } from '../../img/user_icon.svg'
 import AppCart from '../AppCart';
 import { formatVietnameseToString } from '../Common/formatVietnameseToString'
-const Header = ({ category }) => {
-
+import { Avatar } from 'antd';
+const Header = ({ category, inforUser }) => {
     return (
         <div className='header'>
             <div className="header_container">
@@ -66,17 +66,27 @@ const Header = ({ category }) => {
                     </div>
                     <div className="header_log">
                         <div className="header_log_item">
-                            <Link to='/login'>
-                                <User />  Login
-                            </Link>
+                            {inforUser ? (
+                                <div>
+                                    <Link to={`/profile/${inforUser.id}`}>
+                                        {inforUser.avatar ? <Avatar src={inforUser.avatar} /> : <User />}  {inforUser.name}
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div>
+                                    <Link to='/login'>
+                                        <User />  Login
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                         <div className="header_log_item">
-                            <AppCart />
+                            <AppCart inforUser={inforUser} />
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
 

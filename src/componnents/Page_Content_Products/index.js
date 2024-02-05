@@ -4,7 +4,7 @@ import { Avatar, Card, Image, Row, Col, message, Button, Spin } from 'antd';
 import { getAllProDucts, getCategoryThuCung } from '../Api';
 import AddToCartButton from '../AddToCard';
 import Show_Detail from '../Show_Detail';
-
+import out from '../../img/sold_3211463.png'
 export default function Page_Content_Products({ id_category }) {
     const { isIdCategory, setIsIdCategory } = useData();
     const [data, setData] = useState([]);
@@ -43,10 +43,10 @@ export default function Page_Content_Products({ id_category }) {
         fetchData();
     }, [isIdCategory, id_category, CountRows]);
     return (
-        <div style={{ width: '100%', textAlign: 'center' }}>
-            {CountRows ? CountRows : ""} pets
+        <div style={{ width: '100%', }}>
             {cartLoaded ? (
                 <div className='container' style={{ margin: 'auto' }}>
+                    {CountRows ? CountRows : "0"} pets
                     {data.length > 0 ? (
                         <Row>
                             {data?.map((pet) => (
@@ -75,9 +75,14 @@ export default function Page_Content_Products({ id_category }) {
                             ))}
                         </Row>
                     ) : (
-                        <Button>
-                            Hú
-                        </Button>
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'center', height: '100vh', margin: 'auto' }}>
+                                <Image
+                                    preview={false}
+                                    src={out}
+                                />
+                            </div>
+                        </>
                     )}
                 </div>
             ) : (

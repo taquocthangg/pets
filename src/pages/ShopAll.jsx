@@ -7,10 +7,14 @@ export default function ShopAll({ render }) {
     return (
         <div>
             <div className="mt-header"></div>
-            <Space className='page_content'>
-                <Sider_menu />
-                <Page_Content_Products />
-            </Space>
+            <div className="wrapper">
+                <div className="slider">
+                    <Sider_menu />
+                </div>
+                <div className="Page_Content_Products">
+                    <Page_Content_Products className="" />
+                </div>
+            </div>
         </div>
     )
 }

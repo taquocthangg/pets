@@ -8,13 +8,22 @@ export const DataProvider = ({ children }) => {
 
 
     const [cartItems, setCartItems] = useState([]);
+    const [inforUser, setInforUser] = useState([]);
 
     const updateCartItems = (newCartItems) => {
         setCartItems(newCartItems);
     };
 
     return (
-        <DataContext.Provider value={{ isIdCategory, setIsIdCategory, cartItems, setCartItems, updateCartItems }}>
+        <DataContext.Provider value={{
+            isIdCategory,
+            setIsIdCategory,
+            cartItems,
+            setCartItems,
+            updateCartItems,
+            inforUser,
+            setInforUser
+        }}>
             {children}
         </DataContext.Provider>
     );

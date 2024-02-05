@@ -1,21 +1,36 @@
 import { ShoppingCartOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Badge, Drawer, InputNumber, Space, Table, Checkbox } from 'antd';
+import { Badge, Drawer, InputNumber, Space, Table, Checkbox, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { deleteCart, getCart } from '../Api';
 import Column from 'antd/es/table/Column';
 import { useData } from '../../DataContext';
 
-export default function AppCart() {
+export default function AppCart({ inforUser }) {
     const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
     // const [cartItems, setCartItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const { cartItems, setCartItems } = useData();
     useEffect(() => {
-        getCart(1).then((res) => res.Cart.rows).then((res) => {
-            setCartItems(res);
-        });
-    }, []);
+        const fetchData = async () => {
+            try {
+                if (inforUser) {
+                    const response = await getCart(inforUser ? inforUser.id : '');
+                    const cartItems = await response.Cart.rows;
+                    setCartItems(cartItems);
+                }
+                else {
+                    console.log('Người dùng chưa đăng nhập => cart = null')
+                    setCartItems(0);
+                }
+            } catch (error) {
+                message.error("Lỗi kết nối đến server")
+            }
+        };
+
+        fetchData();
+    }, [inforUser]);
+
 
     const handleDeleteItem = (record) => {
         deleteCart(record.id).then(() => {

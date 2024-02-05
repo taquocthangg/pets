@@ -31,7 +31,7 @@ const Footer = ({ category }) => {
                     </div>
                     <div className="footer_title">
                         {category?.map((item) => (
-                            <Link to={`/category/${formatVietnameseToString(item.name ? item.name : "s")}/${item.id}`}>
+                            <Link key={item.id} to={`/category/${formatVietnameseToString(item.name ? item.name : "s")}/${item.id}`}>
                                 <p>
                                     {item.name ? item.name : ''}
                                 </p>

@@ -1,4 +1,4 @@
-import { Form, Input, Button, Tabs } from 'antd';
+import { Form, Input, Button, Tabs, message } from 'antd';
 
 import React from 'react'
 import Reg from './Reg'
@@ -6,16 +6,18 @@ import { useState } from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import Forgot_Pass from './Forgot_Pass';
 import { login } from '../componnents/Api';
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
+import { fetchDataUser } from '../componnents/isCheckAuth';
 
-export default function Login() {
-
+export default function Login({ setInforUser }) {
     return (
         <div>
             <div className="mt-header"></div>
             <div className="container-m">
                 <Tabs defaultActiveKey="login" centered>
                     <Tabs.Items tab="Login" key="login" >
-                        <LoginForm />
+                        <LoginForm setInforUser={setInforUser} />
                     </Tabs.Items>
                     <Tabs.Items tab="Register" key="register" >
                         <Reg />
@@ -26,18 +28,40 @@ export default function Login() {
     )
 }
 
-const LoginForm = () => {
+const LoginForm = ({ setInforUser }) => {
+    const navigate = useNavigate()
     const [showLoginForm, setShowLoginForm] = useState(true);
-
     const onFinishLogin = (values) => {
         console.log('Login form values:', values);
         login(values)
             .then(res => res)
             .then((res) => {
-                console.log(res)
+                localStorage.setItem('access_token', res.access_token);
+                checkLogin()
             });
     };
+    const checkLogin = async () => {
+        const accessToken = localStorage.getItem('access_token');
+        if (accessToken != "null") {
+            const decode = accessToken ? jwtDecode(accessToken) : null
+            console.log(decode)
+            try {
+                if (decode.id) {
+                    localStorage.setItem('idUser', decode.id);
+                    const inforData = await fetchDataUser(decode.id);
+                    setInforUser(inforData)
+                    await message.success(`Đăng nhập thành công`);
+                    navigate('/')
+                }
+            }
+            catch {
 
+            }
+            finally {
+
+            }
+        }
+    }
     const handleForgotPassword = () => {
         setShowLoginForm(false);
     };
@@ -78,7 +102,7 @@ const LoginForm = () => {
                         </Button>
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" >
                             Login
                         </Button>
                     </Form.Item>

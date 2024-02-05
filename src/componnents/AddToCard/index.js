@@ -6,20 +6,27 @@ import { useData } from '../../DataContext';
 
 export default function AddToCartButton({ item }) {
     const { updateCartItems } = useData();
-
+    const idUser = localStorage.getItem('idUser');
     const [loading, setLoading] = useState(false);
     const addProductToCart = () => {
-        setLoading(true);
-        addToCart(1, item.id).then((res) => {
-            message.success(`${item.name} đã thêm vào giỏ hàng`);
-            setLoading(false);
-            updateCartData();
-        });
+        if (idUser) {
+            setLoading(true);
+            addToCart(idUser, item.id).then((res) => {
+                message.success(`${item.name} đã thêm vào giỏ hàng`);
+                setLoading(false);
+                updateCartData(idUser);
+            });
+        }
+        else {
+            message.warning(`Vui lòng đăng nhập để tiếp tục`);
+        }
     };
-    const updateCartData = () => {
-        getCart(1).then((res) => res.Cart.rows).then((res) => {
-            updateCartItems(res);
-        });
+    const updateCartData = (idUser) => {
+        if (idUser) {
+            getCart(idUser).then((res) => res.Cart.rows).then((res) => {
+                updateCartItems(res);
+            });
+        }
     };
     return (
 

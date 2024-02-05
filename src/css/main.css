@@ -70,3 +70,11 @@ a {
 .footer {
     margin-top: auto;
 }
+
+.wrapper {
+    display: flex;
+}
+
+.Page_Content_Products {
+    margin: 0 auto;
+}
