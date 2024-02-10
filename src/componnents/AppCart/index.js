@@ -1,16 +1,19 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ShoppingCartOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Badge, Drawer, InputNumber, Space, Table, Checkbox, message } from 'antd';
+import { Badge, Drawer, InputNumber, Space, Table, Checkbox, Button } from 'antd';
 import Column from 'antd/es/table/Column';
 import { useData } from '../../DataContext';
 import { deleteCart, getCart, updateCart } from '../Api';
 import { formatPrice } from '../Common/formatPrice';
+import Checkout from '../CheckOut/checkout';
 
 const AppCart = ({ inforUser }) => {
     const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const { cartItems, setCartItems } = useData();
+    const [open, setOpen] = useState(false);
+    const [selectedItemsDetails, setSelectedItemsDetails] = useState([]);
 
     const fetchData = useCallback(async () => {
         try {
@@ -52,20 +55,28 @@ const AppCart = ({ inforUser }) => {
             setSelectedItems(res => res.filter(id => id !== record.id));
         });
     };
-
     const handleCheckboxChange = (record, checked) => {
         if (record === 'selectAll') {
-            setSelectedItems(checked ? cartItems.map(item => item.id) : []);
+            const updatedSelectedItems = checked ? cartItems.map(item => item.id) : [];
+            setSelectedItems(updatedSelectedItems);
+            const selectedItemsDetails = cartItems.filter(item => updatedSelectedItems.includes(item.id));
+            setSelectedItemsDetails(selectedItemsDetails);
         } else {
             setSelectedItems(res => {
-                if (checked) {
-                    return [...res, record.id];
-                } else {
-                    return res.filter(id => id !== record.id);
-                }
+                const updatedSelectedItems = checked
+                    ? [...res, record.id]
+                    : res.filter(id => id !== record.id);
+
+                // Lấy thông tin chi tiết của sản phẩm đã chọn
+                const selectedItemsDetails = cartItems.filter(item => updatedSelectedItems.includes(item.id));
+                setSelectedItemsDetails(selectedItemsDetails);
+
+                return updatedSelectedItems;
             });
         }
     };
+
+
 
     const handleQuantityChange = (value, record) => {
         updateCart(record.id, value)
@@ -137,19 +148,22 @@ const AppCart = ({ inforUser }) => {
                     <Column
                         title="Action"
                         render={(text, record) => (
-                            <Space>
-                                <a onClick={() => DeleteItem(record)}>
-                                    <DeleteOutlined />
-                                </a>
+                            <Space style={{ cursor: 'pointer' }} onClick={() => DeleteItem(record)}>
+                                <DeleteOutlined />
+
                             </Space>
                         )}
                     />
                 </Table>
-                <div style={{ marginTop: '16px' }}>
-                    <p>Selected Item IDs: {selectedItems.join(', ')}</p>
+                <div style={{ marginTop: '16px', marginBottom: '16px' }}>
                     <p>Total: {formatPrice(totalPrice)} $</p>
                 </div>
+                <Button type="primary" onClick={() => setOpen(true)} disabled={selectedItems.length === 0}>
+                    Checkout
+                </Button>
+                <Checkout open={open} setOpen={setOpen} selectedItems={selectedItemsDetails} totalPrice={totalPrice} />
             </Drawer>
+
         </div>
     );
 };
