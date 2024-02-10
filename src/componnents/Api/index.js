@@ -167,11 +167,20 @@ export const addNews = (data) => {
     }).then((res) => res.json());
 };
 export const suaNews = (idNew, data) => {
-    return fetch(api + "users/updateNews" + idNew, {
+    return fetch(api + "users/updateNews/" + idNew, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             data
+        }),
+    }).then((res) => res.json());
+};
+export const updateCart = (idCart, quantity) => {
+    return fetch(api + "users/updateCart/" + idCart, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            quantity
         }),
     }).then((res) => res.json());
 };

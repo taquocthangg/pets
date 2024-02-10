@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useData } from '../../DataContext';
-import { Avatar, Card, Image, Row, Col, message, Button, Spin } from 'antd';
+import { Avatar, Card, Image, Row, Col, Spin } from 'antd';
 import { getAllProDucts, getCategoryThuCung } from '../Api';
 import AddToCartButton from '../AddToCard';
 import Show_Detail from '../Show_Detail';
 import out from '../../img/sold_3211463.png'
+import { formatPrice } from '../Common/formatPrice';
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import CardLoading from '../Card_Loading';
 export default function Page_Content_Products({ id_category }) {
     const { isIdCategory, setIsIdCategory } = useData();
     const [data, setData] = useState([]);
@@ -30,6 +33,7 @@ export default function Page_Content_Products({ id_category }) {
                     } else {
                         const response = await getAllProDucts();
                         const responseData = response?.pets?.rows || [];
+                        console.log(response)
                         setData(responseData);
                         setCountRows(response?.pets?.count)
                     }
@@ -46,7 +50,7 @@ export default function Page_Content_Products({ id_category }) {
         <div style={{ width: '100%', }}>
             {cartLoaded ? (
                 <div className='container' style={{ margin: 'auto' }}>
-                    {CountRows ? CountRows : "0"} pets
+                    {CountRows ? CountRows : <Spin />} pets
                     {data.length > 0 ? (
                         <Row>
                             {data?.map((pet) => (
@@ -66,7 +70,12 @@ export default function Page_Content_Products({ id_category }) {
                                         ]}
                                     >
                                         <Card.Meta
-                                            title={pet.name}
+                                            title={
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    {pet.name}
+                                                    <div style={{ fontSize: 16, fontWeight: 'normal' }}> {pet.price ? `${formatPrice(pet.price)} $` : 'Update...'}</div>
+                                                </div>
+                                            }
                                             description={pet.describe}
                                             avatar={<Avatar src={pet.avatar} />}
                                         />
@@ -86,8 +95,10 @@ export default function Page_Content_Products({ id_category }) {
                     )}
                 </div>
             ) : (
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                    <Spin size="large" />
+                <div className='container' style={{ margin: 'auto' }}>
+
+                    {CountRows ? CountRows : <Spin />} pets
+                    <CardLoading loading={loading} />
                 </div>
             )}
         </div>

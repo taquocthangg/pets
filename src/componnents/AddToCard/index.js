@@ -7,11 +7,14 @@ import { useData } from '../../DataContext';
 export default function AddToCartButton({ item }) {
     const { updateCartItems } = useData();
     const idUser = localStorage.getItem('idUser');
+    // nếu có idUser => người dùng đã đăng nhập 
+    // gọi api lấy cart theo idUser
     const [loading, setLoading] = useState(false);
     const addProductToCart = () => {
         if (idUser) {
             setLoading(true);
             addToCart(idUser, item.id).then((res) => {
+                console.log(res)
                 message.success(`${item.name} đã thêm vào giỏ hàng`);
                 setLoading(false);
                 updateCartData(idUser);

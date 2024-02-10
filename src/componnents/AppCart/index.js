@@ -1,65 +1,86 @@
+import React, { useEffect, useState, useCallback } from 'react';
 import { ShoppingCartOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Badge, Drawer, InputNumber, Space, Table, Checkbox, message } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { deleteCart, getCart } from '../Api';
 import Column from 'antd/es/table/Column';
 import { useData } from '../../DataContext';
+import { deleteCart, getCart, updateCart } from '../Api';
+import { formatPrice } from '../Common/formatPrice';
 
-export default function AppCart({ inforUser }) {
+const AppCart = ({ inforUser }) => {
     const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
-    // const [cartItems, setCartItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
-    const [selectAll, setSelectAll] = useState(false);
+    const [totalPrice, setTotalPrice] = useState(0);
     const { cartItems, setCartItems } = useData();
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                if (inforUser) {
-                    const response = await getCart(inforUser ? inforUser.id : '');
-                    const cartItems = await response.Cart.rows;
-                    setCartItems(cartItems);
-                }
-                else {
-                    console.log('Người dùng chưa đăng nhập => cart = null')
-                    setCartItems(0);
-                }
-            } catch (error) {
-                message.error("Lỗi kết nối đến server")
+
+    const fetchData = useCallback(async () => {
+        try {
+            if (inforUser) {
+                const response = await getCart(inforUser.id);
+                const cartItems = response.Cart.rows;
+                setCartItems(cartItems);
+            } else {
+                console.log('Người dùng chưa đăng nhập => cart = null');
+                setCartItems(0);
             }
-        };
+        } catch (error) {
+            console.log('Lỗi kết nối đến api' + error);
+        }
+    }, [inforUser, setCartItems]);
 
+    useEffect(() => {
         fetchData();
-    }, [inforUser]);
+    }, [fetchData]);
 
+    const TotalPrice = useCallback(() => {
+        let total = 0;
+        for (const itemId of selectedItems) {
+            const selectedItem = cartItems.find(item => item.id === itemId);
+            if (selectedItem) {
+                total += selectedItem.Pet.price * selectedItem.quantity;
+            }
+        }
+        setTotalPrice(total);
+    }, [selectedItems, cartItems]);
 
-    const handleDeleteItem = (record) => {
+    useEffect(() => {
+        TotalPrice();
+    }, [TotalPrice]);
+
+    const DeleteItem = (record) => {
         deleteCart(record.id).then(() => {
-            setCartItems((prevItems) => prevItems.filter((item) => item.id !== record.id));
-            setSelectedItems((prevSelected) => prevSelected.filter((id) => id !== record.id));
+            setCartItems(res => res.filter(item => item.id !== record.id));
+            setSelectedItems(res => res.filter(id => id !== record.id));
         });
     };
+
     const handleCheckboxChange = (record, checked) => {
         if (record === 'selectAll') {
-            setSelectAll(checked);
-            setSelectedItems(checked ? cartItems.map((item) => item.id) : []);
+            setSelectedItems(checked ? cartItems.map(item => item.id) : []);
         } else {
-            setSelectedItems((prevSelected) => {
+            setSelectedItems(res => {
                 if (checked) {
-                    return [...prevSelected, record.id];
+                    return [...res, record.id];
                 } else {
-                    return prevSelected.filter((id) => id !== record.id);
+                    return res.filter(id => id !== record.id);
                 }
             });
-            setSelectAll(cartItems.length === selectedItems.length + 1);
         }
+    };
+
+    const handleQuantityChange = (value, record) => {
+        updateCart(record.id, value)
+            .then(() => {
+                setCartItems(res => res.map(item => (item.id === record.id ? { ...item, quantity: value } : item)));
+            })
+            .catch((error) => {
+                console.error('Error updating cart:', error);
+            });
     };
 
     return (
         <div>
             <Badge
-                onClick={() => {
-                    setCartDrawerOpen(true);
-                }}
+                onClick={() => setCartDrawerOpen(true)}
                 count={cartItems.length}
                 style={{ fontSize: 14 }}
                 className="shoppingCartIcon"
@@ -67,36 +88,34 @@ export default function AppCart({ inforUser }) {
                 <ShoppingCartOutlined style={{ fontSize: 24 }} />
             </Badge>
             <Drawer
-                width={500}
+                width={700}
                 open={cartDrawerOpen}
-                onClose={() => {
-                    setCartDrawerOpen(false);
-                }}
-                title="Your Cart"
+                onClose={() => setCartDrawerOpen(false)}
+                title={inforUser?.name ? `${inforUser?.name} Shopping Cart` : 'Your Cart'}
+                style={{ maxHeight: '100vh', overflowY: 'auto' }}
+                key="id"
             >
                 <Table pagination={false} dataSource={cartItems}>
                     <Column
-                        key="selectAll"
                         title={
                             <Checkbox
-                                checked={selectAll}
+                                checked={selectedItems.length === cartItems.length}
                                 onChange={(e) => handleCheckboxChange('selectAll', e.target.checked)}
                             />
                         }
                         dataIndex="id"
                         render={(value, record) => (
                             <Checkbox
-                                key="selectAll"
                                 checked={selectedItems.includes(record.id)}
                                 onChange={(e) => handleCheckboxChange(record, e.target.checked)}
                             />
                         )}
                     />
-                    <Column title="Title" dataIndex="idPet" />
+                    <Column title="Name" dataIndex={['Pet', 'name']} />
                     <Column
                         title="Price"
-                        dataIndex="idUser"
-                        render={(value) => <span>${value}</span>}
+                        dataIndex={['Pet', 'price']}
+                        render={(text, record) => <span>{formatPrice(record.Pet.price)} $</span>}
                     />
                     <Column
                         title="Quantity"
@@ -104,26 +123,22 @@ export default function AppCart({ inforUser }) {
                         render={(value, record) => (
                             <InputNumber
                                 min={1}
-                                defaultValue={value}
-                                onChange={(newValue) => {
-                                    setCartItems((prevItems) =>
-                                        prevItems.map((cart) => {
-                                            if (record.id === cart.id) {
-                                                cart.total = cart.price * newValue;
-                                            }
-                                            return cart;
-                                        })
-                                    );
-                                }}
+                                value={value}
+                                onChange={(newValue) => handleQuantityChange(newValue, record)}
+                                onStep={(value, info) => handleQuantityChange(value, record)}
                             />
                         )}
                     />
-                    <Column title="Total" dataIndex="total" render={(value) => <span>${value}</span>} />
+                    <Column
+                        title="Total"
+                        dataIndex="quantity"
+                        render={(value, record) => <span>{formatPrice(record.Pet.price * value)} $</span>}
+                    />
                     <Column
                         title="Action"
                         render={(text, record) => (
                             <Space>
-                                <a onClick={() => handleDeleteItem(record)}>
+                                <a onClick={() => DeleteItem(record)}>
                                     <DeleteOutlined />
                                 </a>
                             </Space>
@@ -132,8 +147,11 @@ export default function AppCart({ inforUser }) {
                 </Table>
                 <div style={{ marginTop: '16px' }}>
                     <p>Selected Item IDs: {selectedItems.join(', ')}</p>
+                    <p>Total: {formatPrice(totalPrice)} $</p>
                 </div>
             </Drawer>
         </div>
     );
-}
+};
+
+export default AppCart;

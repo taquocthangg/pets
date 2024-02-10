@@ -16,7 +16,7 @@ export default function Profile({ setInforUser }) {
             <Button
                 onClick={handLogout}
             >
-                Đăng xuất
+                Logout
             </Button>
         </div>
     )

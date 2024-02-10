@@ -20,6 +20,8 @@ import { getDanhMucLM3, getUser } from "./componnents/Api";
 import Detail_Category from "./pages/Detail_Category";
 import { decodeAccessToken, fetchDataUser, isAuthenticated } from "./componnents/isCheckAuth";
 import Profile from "./pages/Profile";
+import User from "./pages/User";
+import ScrollToTop from "./componnents/ScrollToTop/ScrollToTop";
 
 function App() {
 
@@ -78,17 +80,19 @@ function App() {
       <DataProvider>
         <Router>
           <Header category={category} inforUser={inforUser} />
-          <Routes>
-            <Route path='/' element={<Home category={category} />} />
-            <Route path='/shop-all/*' element={<ShopAll />} />
-            <Route path='/contacts' element={<Contatc />} />
-            <Route path='/login' element={<Login setInforUser={setInforUser} />} />
-            <Route path='/register' element={<Reg />} />
-            <Route path='/forgot-password' element={<Forgot_Pass />} />
-            <Route path='/detail/:id' element={<Detail />} />
-            <Route path='/profile/:id' element={<Profile setInforUser={setInforUser} />} />
-            <Route path='/category/:name/:id' element={<Detail_Category />} />
-          </Routes>
+          <ScrollToTop>
+            <Routes>
+              <Route path='/' element={<Home category={category} />} />
+              <Route path='/shop-all/*' element={<ShopAll />} />
+              <Route path='/contacts' element={<Contatc />} />
+              <Route path='/login' element={<Login setInforUser={setInforUser} />} />
+              <Route path='/register' element={<Reg />} />
+              <Route path='/forgot-password' element={<Forgot_Pass />} />
+              <Route path='/detail/:name/:id' element={<Detail />} />
+              <Route path='/profile/:id' element={<User setInforUser={setInforUser} />} />
+              <Route path='/category/:name/:id' element={<Detail_Category />} />
+            </Routes>
+          </ScrollToTop>
           <Footer category={category} />
         </Router>
       </DataProvider>
