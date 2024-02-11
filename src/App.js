@@ -16,10 +16,9 @@ import Reg from "./pages/Reg";
 import Forgot_Pass from "./pages/Forgot_Pass";
 import { DataProvider } from "./DataContext";
 import Detail from "./pages/Detail";
-import { getDanhMucLM3, getUser } from "./componnents/Api";
+import { getDanhMucLM3 } from "./componnents/Api";
 import Detail_Category from "./pages/Detail_Category";
 import { decodeAccessToken, fetchDataUser, isAuthenticated } from "./componnents/isCheckAuth";
-import Profile from "./pages/Profile";
 import User from "./pages/User";
 import ScrollToTop from "./componnents/ScrollToTop/ScrollToTop";
 
@@ -89,7 +88,7 @@ function App() {
               <Route path='/register' element={<Reg />} />
               <Route path='/forgot-password' element={<Forgot_Pass />} />
               <Route path='/detail/:name/:id' element={<Detail />} />
-              <Route path='/profile/:id' element={<User setInforUser={setInforUser} />} />
+              <Route path='/profile' element={<User inforUser={inforUser} setInforUser={setInforUser} />} />
               <Route path='/category/:name/:id' element={<Detail_Category />} />
             </Routes>
           </ScrollToTop>

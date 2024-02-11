@@ -14,7 +14,6 @@ const AppCart = ({ inforUser }) => {
     const { cartItems, setCartItems } = useData();
     const [open, setOpen] = useState(false);
     const [selectedItemsDetails, setSelectedItemsDetails] = useState([]);
-
     const fetchData = useCallback(async () => {
         try {
             if (inforUser) {
@@ -59,7 +58,7 @@ const AppCart = ({ inforUser }) => {
         if (record === 'selectAll') {
             const updatedSelectedItems = checked ? cartItems.map(item => item.id) : [];
             setSelectedItems(updatedSelectedItems);
-            const selectedItemsDetails = cartItems.filter(item => updatedSelectedItems.includes(item.id));
+            const selectedItemsDetails = cartItems?.filter(item => updatedSelectedItems.includes(item.id));
             setSelectedItemsDetails(selectedItemsDetails);
         } else {
             setSelectedItems(res => {
@@ -68,7 +67,7 @@ const AppCart = ({ inforUser }) => {
                     : res.filter(id => id !== record.id);
 
                 // Lấy thông tin chi tiết của sản phẩm đã chọn
-                const selectedItemsDetails = cartItems.filter(item => updatedSelectedItems.includes(item.id));
+                const selectedItemsDetails = cartItems?.filter(item => updatedSelectedItems.includes(item.id));
                 setSelectedItemsDetails(selectedItemsDetails);
 
                 return updatedSelectedItems;
@@ -161,7 +160,7 @@ const AppCart = ({ inforUser }) => {
                 <Button type="primary" onClick={() => setOpen(true)} disabled={selectedItems.length === 0}>
                     Checkout
                 </Button>
-                <Checkout open={open} setOpen={setOpen} selectedItems={selectedItemsDetails} totalPrice={totalPrice} />
+                <Checkout open={open} setOpen={setOpen} selectedItems={selectedItemsDetails} totalPrice={totalPrice} inforUser={inforUser} />
             </Drawer>
 
         </div>

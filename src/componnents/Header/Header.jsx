@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css'
 import { ReactComponent as Logo } from '../../img/logo.svg'
@@ -68,7 +68,7 @@ const Header = ({ category, inforUser }) => {
                         <div className="header_log_item">
                             {inforUser ? (
                                 <div>
-                                    <Link to={`/profile/${inforUser.id}`}>
+                                    <Link to={{ pathname: '/profile', state: { inforUser } }}>
                                         {inforUser.avatar ? <Avatar src={inforUser.avatar} /> : <User />}  {inforUser.name}
                                     </Link>
                                 </div>

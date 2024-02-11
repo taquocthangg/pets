@@ -1,8 +1,16 @@
-import { Modal } from 'antd'
-import React from 'react'
+import { Button, Flex, Modal, Radio } from 'antd'
+import React, { useState } from 'react'
 import { formatPrice } from '../Common/formatPrice';
+export default function Checkout({ open, setOpen, selectedItems, totalPrice, inforUser }) {
+    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const handlePlaceOrder = () => {
+        if (paymentMethod === 'cash') {
+            console.log('Tiền mặt')
+        } else if (paymentMethod === 'vnpay') {
+            console.log('chuyển khoản')
+        }
+    };
 
-export default function Checkout({ open, setOpen, selectedItems, totalPrice }) {
     return (
         <div>
             <Modal
@@ -14,7 +22,16 @@ export default function Checkout({ open, setOpen, selectedItems, totalPrice }) {
                 destroyOnClose
                 width={1000}
             >
-                {selectedItems.map(item => (
+                <div>
+                    Delivery Address
+                </div>
+                <div>
+                    <strong>{inforUser?.name + ' ' + inforUser?.sdt}</strong> {inforUser?.diaChi}
+                </div>
+                <div>
+                    Products Ordered
+                </div>
+                {selectedItems?.map(item => (
                     <div style={{ display: 'flex', gap: 30 }} key={item.id}>
                         <p>Name: {item.Pet.name}</p>
                         <p>Price: {item.Pet.price} $</p>
@@ -23,8 +40,18 @@ export default function Checkout({ open, setOpen, selectedItems, totalPrice }) {
                     </div>
                 ))}
                 <div>
-                    Total All : {formatPrice(totalPrice)}
+                    Payment Method
                 </div>
+                <Flex vertical gap="middle">
+                    <Radio.Group value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} buttonStyle="solid">
+                        <Radio.Button value="cash">Cash on Delivery</Radio.Button>
+                        <Radio.Button value="vnpay">VNPAY</Radio.Button>
+                    </Radio.Group>
+                </Flex>
+                <div>
+                    Total All : {formatPrice(totalPrice)} $
+                </div>
+                <Button onClick={handlePlaceOrder}>Place Oder</Button>
             </Modal>
         </div>
     )
